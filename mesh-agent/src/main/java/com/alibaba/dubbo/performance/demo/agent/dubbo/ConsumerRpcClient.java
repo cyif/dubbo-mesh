@@ -26,7 +26,7 @@ import java.util.Random;
  */
 public class ConsumerRpcClient{
 
-    private volatile List<Channel> channels;
+    private List<Channel> channels;
 
     private Bootstrap bootstrap;
 
