@@ -58,7 +58,7 @@ public class EtcdRegistry implements IRegistry {
         Integer cores = Long.valueOf(l).intValue();
         String strKey = MessageFormat.format("/{0}/{1}/{2}:{3}",rootPath,serviceName, IpHelper.getHostIp(),String.valueOf(port));
         ByteSequence key = ByteSequence.fromString(strKey);
-        ByteSequence val = ByteSequence.fromString(cores.toString());     // 目前只需要创建这个key,对应的value暂不使用,先留空
+        ByteSequence val = ByteSequence.fromString(cores.toString());
         kv.put(key,val, PutOption.newBuilder().withLeaseId(leaseId).build()).get();
         logger.info("Register a new service at:" + strKey + "  cores : " + cores);
     }
