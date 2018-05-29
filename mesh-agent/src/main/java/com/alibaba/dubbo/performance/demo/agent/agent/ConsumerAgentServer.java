@@ -30,11 +30,12 @@ import java.util.Map;
 public class ConsumerAgentServer implements AgentServer {
 
     private ServerBootstrap bootstrap;
+
     private IRegistry registry;
 
     private int port;
 
-    public static Map<Long, Channel> channelMap = new HashMap<>();
+    public static Map<Long, Channel> channelMap = new HashMap<>(10000);
 
     public ConsumerAgentServer(int port) {
         init();
