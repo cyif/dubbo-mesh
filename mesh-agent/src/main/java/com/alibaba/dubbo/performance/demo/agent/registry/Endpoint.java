@@ -4,7 +4,7 @@ public class Endpoint {
     private final String host;
     private final int port;
 
-    private int weight = 1;
+    private int weight;
 
     public Endpoint(String host,int port, int weight) {
         this.host = host;
