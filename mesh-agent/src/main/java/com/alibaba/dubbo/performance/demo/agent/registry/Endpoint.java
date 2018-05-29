@@ -9,6 +9,7 @@ public class Endpoint {
     public Endpoint(String host,int port, int weight) {
         this.host = host;
         this.port = port;
+        this.weight = weight;
     }
 
     public String getHost() {
