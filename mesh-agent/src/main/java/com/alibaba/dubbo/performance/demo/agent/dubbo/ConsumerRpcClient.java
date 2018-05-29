@@ -15,6 +15,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -32,7 +33,7 @@ public class ConsumerRpcClient{
 
     private IRegistry registry;
 
-    private Random random = new Random();
+    private AtomicInteger pos = new AtomicInteger();
 
     private List<Endpoint> endpoints;
 
@@ -59,21 +60,18 @@ public class ConsumerRpcClient{
         if (null == endpoints) {
             synchronized (this) {
                 if (null == endpoints) {
-                    List<Endpoint> endpointList = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
-                    List<Channel> channelList = new ArrayList<>();
-                    System.out.println("Find endpoints " + endpointList.size());
-                    for (Endpoint endpoint : endpointList) {
+                    endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
+                    channels = new ArrayList<>();
+                    System.out.println("Find endpoints " + endpoints.size());
+                    for (Endpoint endpoint : endpoints) {
                         Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
-                        channelList.add(channel);
+                        channels.add(channel);
                     }
-                    this.channels = channelList;
-                    this.endpoints = endpointList;
                 }
             }
         }
 
-        List<Channel> channelList = this.channels;
-        Channel channel = channelList.get(random.nextInt(channelList.size()));
+        Channel channel = channels.get(pos.incrementAndGet() % channels.size());
         if (channel == null) {
             throw new Exception("channel is null");
         }
