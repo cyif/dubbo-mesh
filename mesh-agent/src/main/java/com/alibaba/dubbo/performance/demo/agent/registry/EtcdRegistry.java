@@ -60,7 +60,7 @@ public class EtcdRegistry implements IRegistry {
         ByteSequence key = ByteSequence.fromString(strKey);
         ByteSequence val = ByteSequence.fromString(cores.toString());     // 目前只需要创建这个key,对应的value暂不使用,先留空
         kv.put(key,val, PutOption.newBuilder().withLeaseId(leaseId).build()).get();
-        logger.info("Register a new service at:" + strKey);
+        logger.info("Register a new service at:" + strKey + "  cores : " + cores);
     }
 
     // 发送心跳到ETCD,表明该host是活着的
@@ -90,8 +90,8 @@ public class EtcdRegistry implements IRegistry {
             String endpointStr = s.substring(index + 1,s.length());
             String host = endpointStr.split(":")[0];
             int port = Integer.valueOf(endpointStr.split(":")[1]);
-
-            endpoints.add(new Endpoint(host, port));
+            int cores = Integer.valueOf(kv.getValue().toStringUtf8());
+            endpoints.add(new Endpoint(host, port, cores));
         }
         return endpoints;
     }

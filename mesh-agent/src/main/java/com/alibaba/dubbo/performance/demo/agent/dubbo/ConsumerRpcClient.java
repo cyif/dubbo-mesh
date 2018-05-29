@@ -14,6 +14,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ public class ConsumerRpcClient{
     private List<Endpoint> endpoints;
 
     private Map<Endpoint, Channel> channelMap;
+
+    private List<Channel> channels;
 
     private Bootstrap bootstrap;
 
@@ -60,14 +63,16 @@ public class ConsumerRpcClient{
     }
 
     public Channel getChannel() throws Exception {
-        if (null == channelMap) {
+        if (null == endpoints) {
             synchronized (lock) {
-                if (null == channelMap) {
+                if (null == endpoints) {
                     endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
                     channelMap = new HashMap<>();
+//                    channels = new ArrayList<>();
                     for (Endpoint endpoint : endpoints) {
                         Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
                         channelMap.put(endpoint, channel);
+//                        channels.add(channel);
                     }
                 }
             }
