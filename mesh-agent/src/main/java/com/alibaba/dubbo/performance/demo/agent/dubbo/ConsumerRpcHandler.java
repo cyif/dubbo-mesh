@@ -41,6 +41,5 @@ public class ConsumerRpcHandler extends ChannelInboundHandlerAdapter {
         resp.headers().set(HttpHeaderNames.CONTENT_LENGTH, resp.content().readableBytes());
         resp.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         channel.writeAndFlush(resp);
-        resp.release();
     }
 }
