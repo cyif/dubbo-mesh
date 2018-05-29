@@ -23,7 +23,7 @@ public class ProviderRpcClient {
     private Endpoint endpoint;
 
     public ProviderRpcClient() {
-        this.endpoint = new Endpoint("127.0.0.1", Integer.valueOf(System.getProperty("dubbo.protocol.port")), 0);
+        this.endpoint = new Endpoint("127.0.0.1", Integer.valueOf(System.getProperty("dubbo.protocol.port")));
 
         this.bootstrap = new Bootstrap()
                 .group(new NioEventLoopGroup(2))

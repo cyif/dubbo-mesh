@@ -12,6 +12,8 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,11 +24,14 @@ import io.netty.handler.codec.http.HttpVersion;
  */
 public class ConsumerRpcHandler extends ChannelInboundHandlerAdapter {
 
+    private Logger logger = LoggerFactory.getLogger(ConsumerRpcHandler.class);
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         RpcResponse response = (RpcResponse) msg;
         Channel channel = ConsumerAgentServer.channelMap.get(Long.valueOf(response.getRequestId()));
         if (channel == null) {
+            logger.info("request channel is null", response);
             throw new Exception("request channel is null");
         }
 
