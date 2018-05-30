@@ -4,9 +4,12 @@ public class Endpoint {
     private final String host;
     private final int port;
 
-    public Endpoint(String host,int port) {
+    private int weight;
+
+    public Endpoint(String host,int port, int weight) {
         this.host = host;
         this.port = port;
+        this.weight = weight;
     }
 
     public String getHost() {
@@ -17,6 +20,13 @@ public class Endpoint {
         return port;
     }
 
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
 
     public String toString(){
         return host + ":" + port;

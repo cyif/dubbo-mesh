@@ -1,5 +1,7 @@
 package com.alibaba.dubbo.performance.demo.agent.dubbo;
 
+import com.alibaba.dubbo.performance.demo.agent.dubbo.loadbalance.LoadBalance;
+import com.alibaba.dubbo.performance.demo.agent.dubbo.loadbalance.RoundRobinLoadBalance;
 import com.alibaba.dubbo.performance.demo.agent.registry.Endpoint;
 import com.alibaba.dubbo.performance.demo.agent.registry.IRegistry;
 import io.netty.bootstrap.Bootstrap;
@@ -13,8 +15,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 
 
 /**
@@ -26,15 +29,17 @@ import java.util.Random;
  */
 public class ConsumerRpcClient{
 
-    private volatile List<Channel> channels;
+    private List<Endpoint> endpoints;
+
+    private Map<Endpoint, Channel> channelMap;
 
     private Bootstrap bootstrap;
 
     private IRegistry registry;
 
-    private Random random = new Random();
+    private LoadBalance loadBalance = new RoundRobinLoadBalance();
 
-    private List<Endpoint> endpoints;
+    private final Object lock = new Object();
 
     public ConsumerRpcClient(IRegistry registry) {
         this.registry = registry;
@@ -57,26 +62,19 @@ public class ConsumerRpcClient{
 
     public Channel getChannel() throws Exception {
         if (null == endpoints) {
-            synchronized (this) {
+            synchronized (lock) {
                 if (null == endpoints) {
-                    List<Endpoint> endpointList = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
-                    List<Channel> channelList = new ArrayList<>();
-                    System.out.println("Find endpoints " + endpointList.size());
-                    for (Endpoint endpoint : endpointList) {
+                    endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
+                    channelMap = new HashMap<>();
+                    for (Endpoint endpoint : endpoints) {
                         Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
-                        channelList.add(channel);
+                        channelMap.put(endpoint, channel);
                     }
-                    this.channels = channelList;
-                    this.endpoints = endpointList;
                 }
             }
         }
 
-        List<Channel> channelList = this.channels;
-        Channel channel = channelList.get(random.nextInt(channelList.size()));
-        if (channel == null) {
-            throw new Exception("channel is null");
-        }
+        Channel channel = channelMap.get(loadBalance.select(endpoints));
         return channel;
     }
 }
