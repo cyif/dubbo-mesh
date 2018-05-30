@@ -31,7 +31,6 @@ public class ConsumerRpcHandler extends ChannelInboundHandlerAdapter {
         RpcResponse response = (RpcResponse) msg;
         Channel channel = ConsumerAgentServer.channelMap.get(Long.valueOf(response.getRequestId()));
         if (channel == null) {
-            logger.info("request channel is null", response);
             throw new Exception("request channel is null");
         }
 
