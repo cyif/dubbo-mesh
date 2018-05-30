@@ -37,7 +37,7 @@ public class ProviderAgentServer implements AgentServer{
         bootstrap = new ServerBootstrap();
         registry = new EtcdRegistry(AgentConstant.ETCD_URL);
         EventLoopGroup boss = new NioEventLoopGroup(1);
-        EventLoopGroup worker = new NioEventLoopGroup(2);
+        EventLoopGroup worker = new NioEventLoopGroup(4);
         ProviderRpcClient client = new ProviderRpcClient();
 
         bootstrap.group(boss, worker)

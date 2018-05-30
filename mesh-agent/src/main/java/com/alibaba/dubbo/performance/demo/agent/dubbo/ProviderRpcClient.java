@@ -26,7 +26,7 @@ public class ProviderRpcClient {
         this.endpoint = new Endpoint("127.0.0.1", Integer.valueOf(System.getProperty("dubbo.protocol.port")), 0);
 
         this.bootstrap = new Bootstrap()
-                .group(new NioEventLoopGroup(2))
+                .group(new NioEventLoopGroup(4))
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
