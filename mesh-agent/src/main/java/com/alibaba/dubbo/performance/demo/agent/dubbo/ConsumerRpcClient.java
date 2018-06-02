@@ -33,6 +33,8 @@ public class ConsumerRpcClient{
 
     private Map<Endpoint, Channel> channelMap;
 
+    private List<Channel> channels;
+
     private Bootstrap bootstrap;
 
     private IRegistry registry;
@@ -66,9 +68,11 @@ public class ConsumerRpcClient{
                 if (null == endpoints) {
                     endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
                     channelMap = new HashMap<>();
+//                    channels = new ArrayList<>();
                     for (Endpoint endpoint : endpoints) {
                         Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
                         channelMap.put(endpoint, channel);
+//                        channels.add(channel);
                     }
                 }
             }
