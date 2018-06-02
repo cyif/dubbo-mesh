@@ -12,6 +12,8 @@ import com.alibaba.dubbo.performance.demo.agent.agent.api.AgentServer;
 public class AgentConstant {
     public static final String AGENT_TYPE = System.getProperty("type");
 
+    public static final String WEIGHT = System.getProperty("weight", "1");
+
     public static final int SERVER_PORT = Integer.parseInt(System.getProperty("server.port"));
 
     public static final String ETCD_URL = System.getProperty("etcd.url");

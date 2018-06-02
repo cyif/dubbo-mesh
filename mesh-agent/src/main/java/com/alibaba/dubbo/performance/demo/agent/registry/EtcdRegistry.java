@@ -1,5 +1,6 @@
 package com.alibaba.dubbo.performance.demo.agent.registry;
 
+import com.alibaba.dubbo.performance.demo.agent.agent.AgentConstant;
 import com.coreos.jetcd.Client;
 import com.coreos.jetcd.KV;
 import com.coreos.jetcd.Lease;
@@ -53,14 +54,12 @@ public class EtcdRegistry implements IRegistry {
     @Override
     // 向ETCD中注册服务
     public void register(String serviceName,int port) throws Exception {
-        // 服务注册的key为:    /dubbomesh/com.some.package.IHelloService/192.168.100.100:2000
-        long l = Math.round(Runtime.getRuntime().maxMemory() / 1024 / 1024 / 500.0);
-        Integer cores = Long.valueOf(l).intValue();
+        String weight = AgentConstant.WEIGHT;
         String strKey = MessageFormat.format("/{0}/{1}/{2}:{3}",rootPath,serviceName, IpHelper.getHostIp(),String.valueOf(port));
         ByteSequence key = ByteSequence.fromString(strKey);
-        ByteSequence val = ByteSequence.fromString(cores.toString());
+        ByteSequence val = ByteSequence.fromString(weight);
         kv.put(key,val, PutOption.newBuilder().withLeaseId(leaseId).build()).get();
-        logger.info("Register a new service at:" + strKey + "  cores : " + cores);
+        logger.info("Register a new service at:" + strKey + "  weight : " + weight);
     }
 
     // 发送心跳到ETCD,表明该host是活着的
