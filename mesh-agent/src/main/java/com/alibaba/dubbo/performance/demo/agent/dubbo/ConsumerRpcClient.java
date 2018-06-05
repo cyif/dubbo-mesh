@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 
 /**
@@ -31,9 +32,9 @@ public class ConsumerRpcClient{
 
     private List<Endpoint> endpoints;
 
-    private Map<Endpoint, Channel> channelMap;
+    private Map<Endpoint, List<Channel>> channelMap;
 
-    private List<Channel> channels;
+    private Random random = new Random();
 
     private Bootstrap bootstrap;
 
@@ -68,17 +69,19 @@ public class ConsumerRpcClient{
                 if (null == endpoints) {
                     endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
                     channelMap = new HashMap<>();
-//                    channels = new ArrayList<>();
                     for (Endpoint endpoint : endpoints) {
-                        Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
-                        channelMap.put(endpoint, channel);
-//                        channels.add(channel);
+                        List<Channel> channels = new ArrayList<>();
+                        for (int i = 0; i < 4; i++) {
+                            Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
+                            channels.add(channel);
+                        }
+                        channelMap.put(endpoint, channels);
                     }
                 }
             }
         }
 
-        Channel channel = channelMap.get(loadBalance.select(endpoints));
+        Channel channel = channelMap.get(loadBalance.select(endpoints)).get(random.nextInt(4));
         return channel;
     }
 }
