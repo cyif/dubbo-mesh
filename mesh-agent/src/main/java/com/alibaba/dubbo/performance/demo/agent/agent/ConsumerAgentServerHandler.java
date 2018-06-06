@@ -36,11 +36,11 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
 
     private Logger logger = LoggerFactory.getLogger(ConsumerAgentServerHandler.class);
 
-    private static AtomicLong requestId = new AtomicLong();
-
     private ConsumerRpcClient client;
 
     private Channel targetChannel;
+
+    private long channelId;
 
     public ConsumerAgentServerHandler(ConsumerRpcClient client) {
         this.client = client;
@@ -48,9 +48,6 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Long id = requestId.incrementAndGet();
-
-        ConsumerAgentServer.channelMap.put(id, ctx.channel());
         if (msg instanceof FullHttpRequest) {
             Map<String, String> pMap = parse((FullHttpRequest) msg);
 
@@ -64,6 +61,7 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
             JsonUtils.writeObject(pMap.getOrDefault("parameter", ""), writer);
             invocation.setArguments(out.toByteArray());
 
+            long id = (channelId << 30) + IdGenerator.getInstance().getRequestId();
             Request request = new Request(id);
             request.setVersion("2.0.0");
             request.setTwoWay(true);
@@ -74,6 +72,9 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        channelId = IdGenerator.getInstance().getChannelId();
+        ConsumerAgentServer.channelMap.put(channelId, ctx.channel());
+
         targetChannel = client.getChannel();
     }
 

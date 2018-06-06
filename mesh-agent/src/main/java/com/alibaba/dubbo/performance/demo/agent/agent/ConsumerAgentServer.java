@@ -11,15 +11,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,7 +35,7 @@ public class ConsumerAgentServer implements AgentServer {
 
     private int port;
 
-    public static Map<Long, Channel> channelMap = new HashMap<>(10000);
+    public static Map<Long, Channel> channelMap = new ConcurrentHashMap<>(1000000);
 
     public ConsumerAgentServer(int port) {
         init();
@@ -46,8 +45,8 @@ public class ConsumerAgentServer implements AgentServer {
     private void init() {
         registry = new EtcdRegistry(AgentConstant.ETCD_URL);
         bootstrap = new ServerBootstrap();
-        EventLoopGroup boss = new EpollEventLoopGroup(16);
-        EventLoopGroup worker = new EpollEventLoopGroup(16);
+        EventLoopGroup boss = new NioEventLoopGroup(2);
+        EventLoopGroup worker = new NioEventLoopGroup(16);
         ConsumerRpcClient client = new ConsumerRpcClient(registry);
 
         bootstrap.group(boss, worker)
