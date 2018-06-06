@@ -11,6 +11,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -36,8 +37,8 @@ public class ProviderAgentServer implements AgentServer{
     private void init() {
         bootstrap = new ServerBootstrap();
         registry = new EtcdRegistry(AgentConstant.ETCD_URL);
-        EventLoopGroup boss = new NioEventLoopGroup(1);
-        EventLoopGroup worker = new NioEventLoopGroup(2);
+        EventLoopGroup boss = new EpollEventLoopGroup(1);
+        EventLoopGroup worker = new EpollEventLoopGroup();
         ProviderRpcClient client = new ProviderRpcClient();
 
         bootstrap.group(boss, worker)
