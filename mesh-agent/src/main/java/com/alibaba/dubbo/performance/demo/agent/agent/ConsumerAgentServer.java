@@ -48,7 +48,7 @@ public class ConsumerAgentServer implements AgentServer {
     private void init() {
         registry = new EtcdRegistry(AgentConstant.ETCD_URL);
         bootstrap = new ServerBootstrap();
-        EventLoopGroup boss = new EpollEventLoopGroup(1);
+        EventLoopGroup boss = new EpollEventLoopGroup(2);
         EventLoopGroup worker = new EpollEventLoopGroup();
         ConsumerRpcClient client = new ConsumerRpcClient(registry);
 
