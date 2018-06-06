@@ -38,7 +38,7 @@ public class ConsumerAgentServer implements AgentServer {
 
     private int port;
 
-    public static Map<Long, Channel> channelMap = new HashMap<>(10000);
+    public static Map<Long, Channel> channelMap = new ConcurrentHashMap<>(10000);
 
     public ConsumerAgentServer(int port) {
         init();
