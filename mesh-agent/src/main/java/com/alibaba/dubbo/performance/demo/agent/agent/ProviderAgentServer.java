@@ -12,6 +12,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -37,12 +38,12 @@ public class ProviderAgentServer implements AgentServer{
     private void init() {
         bootstrap = new ServerBootstrap();
         registry = new EtcdRegistry(AgentConstant.ETCD_URL);
-        EventLoopGroup boss = new NioEventLoopGroup(2);
-        EventLoopGroup worker = new NioEventLoopGroup();
+        EventLoopGroup boss = new EpollEventLoopGroup(1);
+        EventLoopGroup worker = new EpollEventLoopGroup();
         ProviderRpcClient client = new ProviderRpcClient();
 
         bootstrap.group(boss, worker)
-                .channel(NioServerSocketChannel.class)
+                .channel(EpollServerSocketChannel.class)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)

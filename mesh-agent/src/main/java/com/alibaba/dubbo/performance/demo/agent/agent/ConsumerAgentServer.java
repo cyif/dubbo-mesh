@@ -12,6 +12,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -47,12 +48,12 @@ public class ConsumerAgentServer implements AgentServer {
     private void init() {
         registry = new EtcdRegistry(AgentConstant.ETCD_URL);
         bootstrap = new ServerBootstrap();
-        EventLoopGroup boss = new NioEventLoopGroup(2);
-        EventLoopGroup worker = new NioEventLoopGroup();
+        EventLoopGroup boss = new EpollEventLoopGroup(1);
+        EventLoopGroup worker = new EpollEventLoopGroup();
         ConsumerRpcClient client = new ConsumerRpcClient(registry);
 
         bootstrap.group(boss, worker)
-                .channel(NioServerSocketChannel.class)
+                .channel(EpollServerSocketChannel.class)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
