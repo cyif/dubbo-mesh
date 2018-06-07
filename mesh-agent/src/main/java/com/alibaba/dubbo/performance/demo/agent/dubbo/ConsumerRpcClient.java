@@ -46,7 +46,7 @@ public class ConsumerRpcClient{
     public ConsumerRpcClient(IRegistry registry, EventLoopGroup worker) {
         this.registry = registry;
         this.bootstrap = new Bootstrap()
-                .group(worker)
+                .group(new EpollEventLoopGroup())
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
@@ -54,7 +54,7 @@ public class ConsumerRpcClient{
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(
+                        ch.pipeline().addLast(worker,
                                 new DubboRpcEncoder(),
                                 new DubboRpcDecoder(),
                                 new ConsumerRpcHandler());
