@@ -31,7 +31,7 @@ public class ProviderRpcClient {
 
         this.bootstrap = new Bootstrap()
                 .group(new EpollEventLoopGroup())
-                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.SO_KEEPALIVE, false)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .channel(EpollSocketChannel.class);
