@@ -10,6 +10,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
@@ -50,6 +51,7 @@ public class ConsumerAgentServer implements AgentServer {
         bootstrap = new ServerBootstrap();
         EventLoopGroup boss = new EpollEventLoopGroup(2);
         EventLoopGroup worker = new EpollEventLoopGroup();
+        EventLoopGroup worker2 = new DefaultEventLoopGroup(50);
         ConsumerRpcClient client = new ConsumerRpcClient(registry);
 
         bootstrap.group(boss, worker)
@@ -62,7 +64,7 @@ public class ConsumerAgentServer implements AgentServer {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new HttpServerCodec());
                         ch.pipeline().addLast(new HttpObjectAggregator(65536));
-                        ch.pipeline().addLast(new ConsumerAgentServerHandler(client));
+                        ch.pipeline().addLast(worker2, new ConsumerAgentServerHandler(client));
                     }
                 });
     }

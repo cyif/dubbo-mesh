@@ -100,7 +100,6 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
                 Attribute data = (Attribute) parm;
                 parmMap.put(data.getName(), data.getValue());
             }
-
         } else {
             logger.info("Unsupported method : ", method);
         }
