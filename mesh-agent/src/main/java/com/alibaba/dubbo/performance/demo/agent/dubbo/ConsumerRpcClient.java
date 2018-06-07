@@ -9,14 +9,11 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,11 +43,10 @@ public class ConsumerRpcClient{
 
     private final Object lock = new Object();
 
-    public ConsumerRpcClient(IRegistry registry) {
+    public ConsumerRpcClient(IRegistry registry, EventLoopGroup worker) {
         this.registry = registry;
-        EventLoopGroup worker = new DefaultEventLoopGroup(50);
         this.bootstrap = new Bootstrap()
-                .group(new EpollEventLoopGroup())
+                .group(worker)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
@@ -58,7 +54,7 @@ public class ConsumerRpcClient{
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(worker,
+                        ch.pipeline().addLast(
                                 new DubboRpcEncoder(),
                                 new DubboRpcDecoder(),
                                 new ConsumerRpcHandler());
@@ -72,11 +68,9 @@ public class ConsumerRpcClient{
                 if (null == endpoints) {
                     endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
                     channelMap = new HashMap<>();
-//                    channels = new ArrayList<>();
                     for (Endpoint endpoint : endpoints) {
                         Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
                         channelMap.put(endpoint, channel);
-//                        channels.add(channel);
                     }
                 }
             }

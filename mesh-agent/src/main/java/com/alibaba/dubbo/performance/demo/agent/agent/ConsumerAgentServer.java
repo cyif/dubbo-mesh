@@ -10,17 +10,13 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,8 +47,7 @@ public class ConsumerAgentServer implements AgentServer {
         bootstrap = new ServerBootstrap();
         EventLoopGroup boss = new EpollEventLoopGroup(2);
         EventLoopGroup worker = new EpollEventLoopGroup();
-        EventLoopGroup worker2 = new DefaultEventLoopGroup(50);
-        ConsumerRpcClient client = new ConsumerRpcClient(registry);
+        ConsumerRpcClient client = new ConsumerRpcClient(registry, worker);
 
         bootstrap.group(boss, worker)
                 .channel(EpollServerSocketChannel.class)
@@ -62,7 +57,7 @@ public class ConsumerAgentServer implements AgentServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(worker2,
+                        ch.pipeline().addLast(
                                 new HttpServerCodec(),
                                 new HttpObjectAggregator(65536),
                                 new ConsumerAgentServerHandler(client)

@@ -40,7 +40,7 @@ public class ProviderAgentServer implements AgentServer{
         registry = new EtcdRegistry(AgentConstant.ETCD_URL);
         EventLoopGroup boss = new EpollEventLoopGroup(2);
         EventLoopGroup worker = new EpollEventLoopGroup();
-        ProviderRpcClient client = new ProviderRpcClient();
+        ProviderRpcClient client = new ProviderRpcClient(worker);
 
         bootstrap.group(boss, worker)
                 .channel(EpollServerSocketChannel.class)
