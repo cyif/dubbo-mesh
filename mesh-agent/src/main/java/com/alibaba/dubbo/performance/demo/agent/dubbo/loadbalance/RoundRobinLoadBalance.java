@@ -16,18 +16,30 @@ public class RoundRobinLoadBalance implements LoadBalance {
 
     private AtomicInteger count = new AtomicInteger();
 
-    @Override
-    public Endpoint select(List<Endpoint> endpoints) {
-        int totalWeight = endpoints.stream().mapToInt(Endpoint::getWeight).sum();
+    private List<Endpoint> endpoints;
 
-        int order = count.incrementAndGet() % totalWeight;
-        for (Endpoint endpoint : endpoints) {
-            order -= endpoint.getWeight();
-            if (order < 0) {
-                return endpoint;
+    private int[] index = new int[100];
+
+    private int totalWeight;
+
+    public RoundRobinLoadBalance(List<Endpoint> endpoints) {
+        this.endpoints = endpoints;
+        totalWeight = endpoints.stream().mapToInt(Endpoint::getWeight).sum();
+
+        int k = 0;
+        for (int i = 0; i < endpoints.size(); i++) {
+            for (int j = 0; j < endpoints.get(i).getWeight(); j++) {
+                index[k++] = i;
             }
         }
-        return endpoints.get(0);
+    }
+
+    @Override
+    public Endpoint select() {
+
+        int order = count.incrementAndGet() % totalWeight;
+
+        return endpoints.get(index[order]);
     }
 
 }

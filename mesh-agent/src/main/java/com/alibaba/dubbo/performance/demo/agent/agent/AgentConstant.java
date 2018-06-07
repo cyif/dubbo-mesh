@@ -16,6 +16,8 @@ public class AgentConstant {
 
     public static final int SERVER_PORT = Integer.parseInt(System.getProperty("server.port"));
 
+    public static final int DUBBO_PORT = Integer.valueOf(System.getProperty("dubbo.protocol.port", "80"));
+
     public static final String ETCD_URL = System.getProperty("etcd.url");
 
     public static final boolean IS_PROVIDER = "provider".equals(AGENT_TYPE);

@@ -1,5 +1,6 @@
 package com.alibaba.dubbo.performance.demo.agent.dubbo;
 
+import com.alibaba.dubbo.performance.demo.agent.agent.AgentConstant;
 import com.alibaba.dubbo.performance.demo.agent.registry.Endpoint;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -25,11 +26,11 @@ public class ProviderRpcClient {
 
     private Endpoint endpoint;
 
-    public ProviderRpcClient(EventLoopGroup worker) {
-        this.endpoint = new Endpoint("127.0.0.1", Integer.valueOf(System.getProperty("dubbo.protocol.port")), 0);
+    public ProviderRpcClient() {
+        this.endpoint = new Endpoint("127.0.0.1", AgentConstant.DUBBO_PORT, 0);
 
         this.bootstrap = new Bootstrap()
-                .group(worker)
+                .group(new EpollEventLoopGroup())
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)

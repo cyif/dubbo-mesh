@@ -47,7 +47,7 @@ public class ConsumerAgentServer implements AgentServer {
         bootstrap = new ServerBootstrap();
         EventLoopGroup boss = new EpollEventLoopGroup(2);
         EventLoopGroup worker = new EpollEventLoopGroup();
-        ConsumerRpcClient client = new ConsumerRpcClient(registry, worker);
+        ConsumerRpcClient client = new ConsumerRpcClient(registry);
 
         bootstrap.group(boss, worker)
                 .channel(EpollServerSocketChannel.class)

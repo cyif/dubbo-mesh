@@ -9,8 +9,6 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.DefaultEventLoopGroup;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.SocketChannel;
@@ -29,21 +27,17 @@ import java.util.Map;
  */
 public class ConsumerRpcClient{
 
-    private List<Endpoint> endpoints;
-
     private Map<Endpoint, Channel> channelMap;
-
-    private List<Channel> channels;
 
     private Bootstrap bootstrap;
 
     private IRegistry registry;
 
-    private LoadBalance loadBalance = new RoundRobinLoadBalance();
+    private LoadBalance loadBalance;
 
     private final Object lock = new Object();
 
-    public ConsumerRpcClient(IRegistry registry, EventLoopGroup worker) {
+    public ConsumerRpcClient(IRegistry registry) {
         this.registry = registry;
         this.bootstrap = new Bootstrap()
                 .group(new EpollEventLoopGroup())
@@ -54,7 +48,7 @@ public class ConsumerRpcClient{
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(worker,
+                        ch.pipeline().addLast(
                                 new DubboRpcEncoder(),
                                 new DubboRpcDecoder(),
                                 new ConsumerRpcHandler());
@@ -63,10 +57,11 @@ public class ConsumerRpcClient{
     }
 
     public Channel getChannel() throws Exception {
-        if (null == endpoints) {
+        if (null == loadBalance) {
             synchronized (lock) {
-                if (null == endpoints) {
-                    endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
+                if (null == loadBalance) {
+                    List<Endpoint> endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
+                    loadBalance = new RoundRobinLoadBalance(endpoints);
                     channelMap = new HashMap<>();
                     for (Endpoint endpoint : endpoints) {
                         Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
@@ -76,7 +71,7 @@ public class ConsumerRpcClient{
             }
         }
 
-        Channel channel = channelMap.get(loadBalance.select(endpoints));
+        Channel channel = channelMap.get(loadBalance.select());
         return channel;
     }
 }

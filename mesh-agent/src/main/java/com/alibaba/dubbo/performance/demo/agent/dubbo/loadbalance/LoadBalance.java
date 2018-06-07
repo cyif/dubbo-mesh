@@ -13,6 +13,6 @@ import java.util.List;
  */
 public interface LoadBalance {
 
-    Endpoint select(List<Endpoint> endpoints);
+    Endpoint select();
 
 }
