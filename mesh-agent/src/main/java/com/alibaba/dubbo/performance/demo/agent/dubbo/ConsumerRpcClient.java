@@ -10,6 +10,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -46,6 +48,7 @@ public class ConsumerRpcClient{
 
     public ConsumerRpcClient(IRegistry registry) {
         this.registry = registry;
+        EventLoopGroup worker = new DefaultEventLoopGroup(50);
         this.bootstrap = new Bootstrap()
                 .group(new EpollEventLoopGroup())
                 .option(ChannelOption.SO_KEEPALIVE, true)
@@ -55,10 +58,10 @@ public class ConsumerRpcClient{
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new DubboRpcEncoder());
-                        pipeline.addLast(new DubboRpcDecoder());
-                        pipeline.addLast(new ConsumerRpcHandler());
+                        ch.pipeline().addLast(worker,
+                                new DubboRpcEncoder(),
+                                new DubboRpcDecoder(),
+                                new ConsumerRpcHandler());
                     }
                 });
     }
