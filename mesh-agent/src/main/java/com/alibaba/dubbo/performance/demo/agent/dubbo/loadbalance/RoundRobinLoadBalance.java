@@ -1,6 +1,8 @@
 package com.alibaba.dubbo.performance.demo.agent.dubbo.loadbalance;
 
 import com.alibaba.dubbo.performance.demo.agent.registry.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,6 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Time: 下午2:22
  */
 public class RoundRobinLoadBalance implements LoadBalance {
+
+    private Logger logger = LoggerFactory.getLogger(RoundRobinLoadBalance.class);
 
     private AtomicInteger count = new AtomicInteger();
 
@@ -32,6 +36,10 @@ public class RoundRobinLoadBalance implements LoadBalance {
                 index[k++] = i;
             }
         }
+        for (int i = 0; i < k; i++) {
+            logger.info("Index: " + index[i]);
+        }
+
     }
 
     @Override
