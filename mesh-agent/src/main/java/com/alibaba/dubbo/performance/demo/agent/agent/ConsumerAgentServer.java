@@ -62,9 +62,11 @@ public class ConsumerAgentServer implements AgentServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new HttpServerCodec());
-                        ch.pipeline().addLast(new HttpObjectAggregator(65536));
-                        ch.pipeline().addLast(worker2, new ConsumerAgentServerHandler(client));
+                        ch.pipeline().addLast(worker2,
+                                new HttpServerCodec(),
+                                new HttpObjectAggregator(65536),
+                                new ConsumerAgentServerHandler(client)
+                        );
                     }
                 });
     }
