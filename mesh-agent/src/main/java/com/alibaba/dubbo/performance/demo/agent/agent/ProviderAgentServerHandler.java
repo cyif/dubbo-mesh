@@ -38,7 +38,6 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("Provider connections : " + channelId.incrementAndGet());
         client.setHandler(new ProviderRpcHandler(ctx.channel()));
         targetChannel = client.connect();
     }
