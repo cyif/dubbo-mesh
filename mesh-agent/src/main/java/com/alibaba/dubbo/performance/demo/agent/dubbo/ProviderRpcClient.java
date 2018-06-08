@@ -6,6 +6,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -26,6 +27,10 @@ public class ProviderRpcClient {
 
     private Endpoint endpoint;
 
+    private Channel channel;
+
+    private final Object lock = new Object();
+
     public ProviderRpcClient() {
         this.endpoint = new Endpoint("127.0.0.1", AgentConstant.DUBBO_PORT, 0);
 
@@ -37,11 +42,21 @@ public class ProviderRpcClient {
                 .channel(EpollSocketChannel.class);
     }
 
-    public ChannelFuture connect(Channel sourceChannel) throws InterruptedException {
+    public void setHandler(ChannelHandler handler) {
+        bootstrap.handler(handler);
+    }
 
-        bootstrap.handler(new ProviderRpcHandler(sourceChannel));
+    public Channel connect() throws InterruptedException {
 
-        return bootstrap.connect(endpoint.getHost(), endpoint.getPort());
+        if (null == channel) {
+            synchronized (lock) {
+                if (null == channel) {
+                    channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
+                }
+            }
+        }
+
+        return channel;
     }
 
 }

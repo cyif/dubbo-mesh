@@ -1,6 +1,7 @@
 package com.alibaba.dubbo.performance.demo.agent.agent;
 
 import com.alibaba.dubbo.performance.demo.agent.dubbo.ProviderRpcClient;
+import com.alibaba.dubbo.performance.demo.agent.dubbo.ProviderRpcHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -38,8 +39,7 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         logger.info("Provider connections : " + channelId.incrementAndGet());
-        client.connect(ctx.channel()).addListener(future -> {
-            targetChannel = ((ChannelFuture) future).channel();
-        });
+        client.setHandler(new ProviderRpcHandler(ctx.channel()));
+        targetChannel = client.connect();
     }
 }

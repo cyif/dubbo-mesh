@@ -15,7 +15,7 @@ public class ProviderRpcHandler extends ChannelInboundHandlerAdapter {
 
     private Channel sourceChannel;
 
-    ProviderRpcHandler(Channel sourceChannel) {
+    public ProviderRpcHandler(Channel sourceChannel) {
         this.sourceChannel = sourceChannel;
     }
 
