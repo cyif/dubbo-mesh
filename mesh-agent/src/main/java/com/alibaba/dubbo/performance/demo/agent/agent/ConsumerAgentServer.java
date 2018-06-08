@@ -51,7 +51,8 @@ public class ConsumerAgentServer implements AgentServer {
 
         bootstrap.group(boss, worker)
                 .channel(EpollServerSocketChannel.class)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .childOption(ChannelOption.SO_KEEPALIVE, false)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childHandler(new ChannelInitializer<SocketChannel>() {

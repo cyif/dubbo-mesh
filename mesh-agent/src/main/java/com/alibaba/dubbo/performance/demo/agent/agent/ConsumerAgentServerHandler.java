@@ -49,8 +49,6 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpRequest) {
-            targetChannel = client.getChannel();
-
             Map<String, String> pMap = parse((FullHttpRequest) msg);
 
             RpcInvocation invocation = new RpcInvocation();
@@ -76,6 +74,7 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         channelId = IdGenerator.getInstance().getChannelId();
         ConsumerAgentServer.channelMap.put(channelId, ctx.channel());
+        targetChannel = client.getChannel();
     }
 
     private Map<String, String> parse(FullHttpRequest fullReq) throws IOException {
