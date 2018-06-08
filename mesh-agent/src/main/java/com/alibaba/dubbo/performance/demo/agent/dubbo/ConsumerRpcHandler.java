@@ -29,7 +29,7 @@ public class ConsumerRpcHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         RpcResponse response = (RpcResponse) msg;
-        long channelId = Long.valueOf(response.getRequestId()) >> 30;
+        long channelId = response.getRequestId() >> 30;
         Channel channel = ConsumerAgentServer.channelMap.get(channelId);
         if (channel == null) {
             throw new Exception("request channel is null");
