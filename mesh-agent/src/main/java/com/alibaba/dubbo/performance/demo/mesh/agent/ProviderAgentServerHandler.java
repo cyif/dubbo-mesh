@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,9 +31,8 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
 
     private Logger logger = LoggerFactory.getLogger(ProviderAgentServerHandler.class);
 
-    private static AtomicInteger channelId = new AtomicInteger();
-
     private ProviderRpcClient client;
+
     private Channel targetChannel;
 
     public ProviderAgentServerHandler(ProviderRpcClient client) {
@@ -44,6 +42,8 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Agent.AgentRequest agentRequest = (Agent.AgentRequest) msg;
+
+        logger.info("Id : " + agentRequest.getId() + " content : " + agentRequest.toString());
         RpcInvocation invocation = new RpcInvocation();
         invocation.setMethodName(agentRequest.getMethodName());
         invocation.setAttachment("path", agentRequest.getInterfaceName());

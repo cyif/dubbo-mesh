@@ -10,7 +10,7 @@ message AgentRequest {
     string parameter = 5;
 }
 
-message AgentReponse {
+message AgentResponse {
     int64 id = 1;
     string value = 2;
 }

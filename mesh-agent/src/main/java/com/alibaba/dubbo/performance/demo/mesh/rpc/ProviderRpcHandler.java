@@ -26,10 +26,10 @@ public class ProviderRpcHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         RpcResponse response = (RpcResponse) msg;
 
-        Agent.AgentReponse agentReponse = Agent.AgentReponse.newBuilder()
+        Agent.AgentResponse agentResponse = Agent.AgentResponse.newBuilder()
                 .setId(response.getRequestId())
                 .setValueBytes(ByteString.copyFrom(response.getBytes()))
                 .build();
-        sourceChannel.writeAndFlush(agentReponse);
+        sourceChannel.writeAndFlush(agentResponse);
     }
 }

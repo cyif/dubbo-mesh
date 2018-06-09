@@ -60,7 +60,7 @@ public class ConsumerRpcClient{
 //                                new DubboRpcDecoder(),
                                 // decoded
                                 new ProtobufVarint32FrameDecoder(),
-                                new ProtobufDecoder(Agent.AgentReponse.getDefaultInstance()),
+                                new ProtobufDecoder(Agent.AgentResponse.getDefaultInstance()),
                                 // encoded
                                 new ProtobufVarint32LengthFieldPrepender(),
                                 new ProtobufEncoder(),

@@ -56,7 +56,7 @@ public class ProviderAgentServer implements AgentServer{
                         ch.pipeline().addLast(
                                 // decoded
                                 new ProtobufVarint32FrameDecoder(),
-                                new ProtobufDecoder(Agent.AgentReponse.getDefaultInstance()),
+                                new ProtobufDecoder(Agent.AgentRequest.getDefaultInstance()),
                                 // encoded
                                 new ProtobufVarint32LengthFieldPrepender(),
                                 new ProtobufEncoder(),

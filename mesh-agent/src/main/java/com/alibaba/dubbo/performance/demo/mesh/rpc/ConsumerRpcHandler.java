@@ -28,7 +28,7 @@ public class ConsumerRpcHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Agent.AgentReponse response = (Agent.AgentReponse) msg;
+        Agent.AgentResponse response = (Agent.AgentResponse) msg;
         long channelId = response.getId() >> 30;
         Channel channel = ConsumerAgentServer.channelMap.get(channelId);
         if (channel == null) {

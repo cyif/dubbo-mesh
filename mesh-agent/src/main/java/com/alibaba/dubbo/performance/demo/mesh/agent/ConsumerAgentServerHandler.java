@@ -72,6 +72,7 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
                     .setInterfaceName(pMap.get("interface"))
                     .setParameterTypesString(pMap.get("parameterTypesString"))
                     .setParameter(pMap.get("parameter")).build();
+            logger.info("Request id : " + id + " content : " + request.toString());
             targetChannel.writeAndFlush(request);
         }
     }
