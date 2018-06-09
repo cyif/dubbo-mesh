@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_package = "com.alibaba.dubbo.performance.demo.mesh.agent.model";
+
+message AgentRequest {
+    int64 id = 1;
+    string interfaceName = 2;
+    string methodName = 3;
+    string parameterTypesString = 4;
+    string parameter = 5;
+}
+
+message AgentReponse {
+    int64 id = 1;
+    string value = 2;
+}
