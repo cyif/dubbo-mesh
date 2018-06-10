@@ -16,6 +16,7 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.util.collection.LongObjectHashMap;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +36,7 @@ public class ConsumerAgentServer implements AgentServer {
 
     private int port;
 
-    public static Map<Long, Channel> channelMap = new ConcurrentHashMap<>(10000);
+    public static volatile Map<Long, Channel> channelMap = new LongObjectHashMap<>(10000);
 
     public ConsumerAgentServer(int port) {
         init();
