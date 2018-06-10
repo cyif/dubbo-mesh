@@ -43,7 +43,6 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Agent.AgentRequest agentRequest = (Agent.AgentRequest) msg;
 
-        logger.info("Id : " + agentRequest.getId() + " content : " + agentRequest.toString());
         RpcInvocation invocation = new RpcInvocation();
         invocation.setMethodName(agentRequest.getMethodName());
         invocation.setAttachment("path", agentRequest.getInterfaceName());
