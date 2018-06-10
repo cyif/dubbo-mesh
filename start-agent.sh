@@ -46,7 +46,7 @@ elif [[ "$1" == "provider-large" ]]; then
        -Xms2560M \
        -Xmx2560M \
        -Dtype=provider \
-       -Dweight=6 \
+       -Dweight=5 \
        -Ddubbo.protocol.port=20880 \
        -Dserver.port=30000 \
        -Detcd.url=$ETCD_URL \
