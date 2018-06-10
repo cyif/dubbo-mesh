@@ -9,6 +9,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.regex.Pattern;
+
 /**
  * Created with IntelliJ IDEA.
  * Description:
@@ -19,6 +21,8 @@ import org.slf4j.LoggerFactory;
 public class ProviderRpcHandler extends ChannelInboundHandlerAdapter {
 
     private Logger logger = LoggerFactory.getLogger(ProviderRpcHandler.class);
+
+    private Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
 
     private Channel sourceChannel;
 
@@ -34,7 +38,14 @@ public class ProviderRpcHandler extends ChannelInboundHandlerAdapter {
                 .setId(response.getRequestId())
                 .setValueBytes(ByteString.copyFrom(response.getBytes()))
                 .build();
-        logger.info("Return value : " + agentResponse.getValue());
-        sourceChannel.writeAndFlush(agentResponse);
+
+
+        if (isLegal(agentResponse.getValue())) {
+            sourceChannel.writeAndFlush(agentResponse);
+        }
+    }
+
+    private boolean isLegal(String str) {
+        return pattern.matcher(str).matches();
     }
 }
