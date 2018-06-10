@@ -38,7 +38,7 @@ public class EtcdRegistry implements IRegistry {
             this.leaseId = lease.grant(30).get().getID();
             logger.info("LeaseId : " + leaseId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Fail to get leaseId :" + e.getMessage());
         }
 
         keepAlive();
