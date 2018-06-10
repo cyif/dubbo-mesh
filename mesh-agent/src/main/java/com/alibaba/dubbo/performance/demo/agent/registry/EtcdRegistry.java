@@ -1,6 +1,7 @@
 package com.alibaba.dubbo.performance.demo.agent.registry;
 
 import com.alibaba.dubbo.performance.demo.agent.server.AgentConstant;
+import com.alibaba.dubbo.performance.demo.agent.server.proto.Agent;
 import com.coreos.jetcd.Client;
 import com.coreos.jetcd.KV;
 import com.coreos.jetcd.Lease;
@@ -32,6 +33,7 @@ public class EtcdRegistry implements IRegistry {
         Client client = Client.builder().endpoints(registryAddress).build();
         this.lease   = client.getLeaseClient();
         this.kv      = client.getKVClient();
+        logger.info(AgentConstant.AGENT_TYPE + " Resigtry");
         try {
             this.leaseId = lease.grant(30).get().getID();
             logger.info("LeaseId : " + leaseId);
