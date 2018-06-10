@@ -1,7 +1,7 @@
 package com.alibaba.dubbo.performance.demo.agent.rpc;
 
+import com.alibaba.dubbo.performance.demo.agent.proto.Agent;
 import com.alibaba.dubbo.performance.demo.agent.rpc.model.RpcResponse;
-import com.alibaba.dubbo.performance.demo.mesh.agent.model.Agent;
 import com.google.protobuf.ByteString;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;

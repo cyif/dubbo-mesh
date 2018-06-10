@@ -1,7 +1,6 @@
 package com.alibaba.dubbo.performance.demo.agent.registry;
 
 import com.alibaba.dubbo.performance.demo.agent.server.AgentConstant;
-import com.alibaba.dubbo.performance.demo.agent.server.proto.Agent;
 import com.coreos.jetcd.Client;
 import com.coreos.jetcd.KV;
 import com.coreos.jetcd.Lease;

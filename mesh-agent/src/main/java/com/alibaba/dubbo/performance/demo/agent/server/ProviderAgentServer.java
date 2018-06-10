@@ -1,10 +1,10 @@
 package com.alibaba.dubbo.performance.demo.agent.server;
 
+import com.alibaba.dubbo.performance.demo.agent.proto.Agent;
 import com.alibaba.dubbo.performance.demo.agent.registry.EtcdRegistry;
 import com.alibaba.dubbo.performance.demo.agent.registry.IRegistry;
 import com.alibaba.dubbo.performance.demo.agent.rpc.ProviderRpcClient;
 import com.alibaba.dubbo.performance.demo.agent.server.api.AgentServer;
-import com.alibaba.dubbo.performance.demo.agent.server.proto.Agent;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
