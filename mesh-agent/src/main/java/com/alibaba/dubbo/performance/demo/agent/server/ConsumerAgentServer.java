@@ -36,8 +36,6 @@ public class ConsumerAgentServer implements AgentServer {
 
     private int port;
 
-    public static volatile Map<Long, Channel> channelMap = new LongObjectHashMap<>(10000);
-
     public ConsumerAgentServer(int port) {
         init();
         this.port = port;
