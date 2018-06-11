@@ -29,57 +29,34 @@ public class DubboRpcEncoder extends MessageToByteEncoder{
     protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf buffer) throws Exception {
         Request req = (Request)msg;
 
+        // header.
+        byte[] header = new byte[HEADER_LENGTH];
+        // set magic number.
+        Bytes.short2bytes(MAGIC, header);
+
+        // set request and serialization flag.
+        header[2] = (byte) (FLAG_REQUEST | 6);
+
+        if (req.isTwoWay()) header[2] |= FLAG_TWOWAY;
+        if (req.isEvent()) header[2] |= FLAG_EVENT;
+
+        // set request id.
+        Bytes.long2bytes(req.getId(), header, 4);
+
+        // encode request data.
+        int savedWriteIndex = buffer.writerIndex();
+        buffer.writerIndex(savedWriteIndex + HEADER_LENGTH);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         encodeRequestData(bos, req.getData());
-        ByteBuf bodyBuf = Unpooled.wrappedBuffer(bos.toByteArray());
 
-        ByteBuf headerBuf = ctx.alloc().ioBuffer(HEADER_LENGTH);
-        headerBuf.writeShort(MAGIC);
-        headerBuf.writeByte(getFlag(req));
-        headerBuf.writeByte(20);
-        headerBuf.writeLong(req.getId());
-        headerBuf.writeInt(bodyBuf.readableBytes());
+        int len = bos.size();
+        buffer.writeBytes(bos.toByteArray());
+        Bytes.int2bytes(len, header, 12);
 
-        ((CompositeByteBuf) buffer).addComponent(headerBuf);
-        ((CompositeByteBuf) buffer).addComponent(bodyBuf);
-        ((CompositeByteBuf) buffer).writerIndex(headerBuf.readableBytes() + bodyBuf.readableBytes());
-
-//        // header.
-//        byte[] header = new byte[HEADER_LENGTH];
-//        // set magic number.
-//        Bytes.short2bytes(MAGIC, header);
-//
-//        // set request and serialization flag.
-//        header[2] = (byte) (FLAG_REQUEST | 6);
-//
-//        if (req.isTwoWay()) header[2] |= FLAG_TWOWAY;
-//        if (req.isEvent()) header[2] |= FLAG_EVENT;
-//
-//        // set request id.
-//        Bytes.long2bytes(req.getId(), header, 4);
-//
-//        // encode request data.
-//        int savedWriteIndex = buffer.writerIndex();
-//        buffer.writerIndex(savedWriteIndex + HEADER_LENGTH);
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        encodeRequestData(bos, req.getData());
-//
-//        int len = bos.size();
-//        buffer.writeBytes(bos.toByteArray());
-//        Bytes.int2bytes(len, header, 12);
-//
-//        // write
-//        buffer.writerIndex(savedWriteIndex);
-//        buffer.writeBytes(header); // write header.
-//        buffer.writerIndex(savedWriteIndex + HEADER_LENGTH + len);
-    }
-
-    private byte getFlag(Request req) {
-        byte flag = FLAG_REQUEST | 6;
-        if (req.isTwoWay()) flag |= FLAG_TWOWAY;
-        if (req.isEvent()) flag |= FLAG_EVENT;
-
-        return flag;
+        // write
+        buffer.writerIndex(savedWriteIndex);
+        buffer.writeBytes(header); // write header.
+        buffer.writerIndex(savedWriteIndex + HEADER_LENGTH + len);
     }
 
     public void encodeRequestData(OutputStream out, Object data) throws Exception {
