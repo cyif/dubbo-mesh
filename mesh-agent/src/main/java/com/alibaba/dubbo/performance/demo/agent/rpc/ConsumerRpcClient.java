@@ -42,8 +42,8 @@ public class ConsumerRpcClient{
 
     private FastThreadLocal<Map<Endpoint, Channel>> channelMap = new FastThreadLocal<Map<Endpoint, Channel>>() {
         @Override
-        protected ConcurrentHashMap<Endpoint, Channel> initialValue() {
-            return new ConcurrentHashMap<>();
+        protected HashMap<Endpoint, Channel> initialValue() {
+            return new HashMap<>();
         }
     };
 
