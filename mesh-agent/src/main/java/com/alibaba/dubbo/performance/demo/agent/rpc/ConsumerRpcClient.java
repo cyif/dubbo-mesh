@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.sun.jmx.remote.internal.IIOPHelper.connect;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -67,7 +69,7 @@ public class ConsumerRpcClient{
                 });
     }
 
-    public Channel getChannel() throws Exception {
+    public Channel getChannel(EventLoop eventLoop) throws Exception {
         if (null == loadBalance) {
             synchronized (lock) {
                 if (null == loadBalance) {
@@ -83,7 +85,7 @@ public class ConsumerRpcClient{
         }
 
         Endpoint endpoint = loadBalance.select();
-        return bootstrap.connect(endpoint.getHost(), endpoint.getPort()).channel();
+        return bootstrap.group(eventLoop).connect(endpoint.getHost(), endpoint.getPort()).channel();
 //        Channel channel = channelMap.get(loadBalance.select());
 //        return channel;
     }
