@@ -35,7 +35,7 @@ public class ProviderRpcClient {
         this.endpoint = new Endpoint("127.0.0.1", AgentConstant.DUBBO_PORT, 0);
 
         this.bootstrap = new Bootstrap()
-                .group(new EpollEventLoopGroup())
+                .group(new EpollEventLoopGroup(1))
                 .option(ChannelOption.SO_KEEPALIVE, false)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)

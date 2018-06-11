@@ -45,7 +45,7 @@ public class ConsumerRpcClient{
     public ConsumerRpcClient(IRegistry registry) {
         this.registry = registry;
         this.bootstrap = new Bootstrap()
-                .group(new EpollEventLoopGroup())
+                .group(new EpollEventLoopGroup(1))
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
