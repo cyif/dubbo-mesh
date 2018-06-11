@@ -44,8 +44,6 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
 
     private Channel targetChannel;
 
-    private long channelId;
-
     public ConsumerAgentServerHandler(ConsumerRpcClient client) {
         this.client = client;
     }
@@ -71,8 +69,6 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//        channelId = IdGenerator.getInstance().getChannelId();
-//        ConsumerAgentServer.channelMap.put(channelId, ctx.channel());
         targetChannel = client.getChannel(ctx.channel().eventLoop());
     }
 

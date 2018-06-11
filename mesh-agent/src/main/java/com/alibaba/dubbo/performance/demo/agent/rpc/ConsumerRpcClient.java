@@ -17,6 +17,7 @@ import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
+import io.netty.util.concurrent.FastThreadLocal;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +40,7 @@ public class ConsumerRpcClient{
 
     private LoadBalance loadBalance = null;
 
-    private ThreadLocal<Map<Endpoint, Channel>> channelMap = new ThreadLocal<Map<Endpoint, Channel>>() {
+    private FastThreadLocal<Map<Endpoint, Channel>> channelMap = new FastThreadLocal<Map<Endpoint, Channel>>() {
         @Override
         protected ConcurrentHashMap<Endpoint, Channel> initialValue() {
             return new ConcurrentHashMap<>();
@@ -50,18 +51,15 @@ public class ConsumerRpcClient{
 
     public ConsumerRpcClient(IRegistry registry) {
         this.registry = registry;
+        try {
+            List<Endpoint> endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
+            loadBalance = new RoundRobinLoadBalance(endpoints);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Channel getChannel(EventLoop eventLoop) throws Exception {
-
-        if (null == loadBalance) {
-            synchronized (lock) {
-                if (null == loadBalance) {
-                    List<Endpoint> endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
-                    loadBalance = new RoundRobinLoadBalance(endpoints);
-                }
-            }
-        }
 
         Endpoint endpoint = loadBalance.select();
         if (!channelMap.get().containsKey(endpoint)) {
