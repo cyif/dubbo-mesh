@@ -3,23 +3,16 @@ package com.alibaba.dubbo.performance.demo.agent.server;
 import com.alibaba.dubbo.performance.demo.agent.proto.Agent;
 import com.alibaba.dubbo.performance.demo.agent.rpc.ConsumerRpcClient;
 import com.alibaba.dubbo.performance.demo.agent.rpc.model.AgentPromise;
-import com.alibaba.dubbo.performance.demo.agent.rpc.model.AgentRequestHolder;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.util.collection.LongObjectHashMap;
+import io.netty.util.concurrent.FastThreadLocal;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +37,18 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
 
     private Channel targetChannel;
 
+    public static FastThreadLocal<LongObjectHashMap<Promise<Agent.AgentResponse>>> processingRpc =
+            new FastThreadLocal<LongObjectHashMap<Promise<Agent.AgentResponse>>>() {
+                @Override
+                protected LongObjectHashMap<Promise<Agent.AgentResponse>> initialValue() {
+                    return new LongObjectHashMap<>();
+                }
+            };
+
     public ConsumerAgentServerHandler(ConsumerRpcClient client) {
         this.client = client;
     }
+
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -62,14 +64,15 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
                     .setParameterTypesString(pMap.get("parameterTypesString"))
                     .setParameter(pMap.get("parameter")).build();
 
-            AgentRequestHolder.put(request.getId(), new AgentPromise(ctx));
-            targetChannel.writeAndFlush(request);
+            processingRpc.get().put(request.getId(), new AgentPromise(ctx));
+            client.getChannel(ctx.channel().eventLoop()).writeAndFlush(request);
+//            targetChannel.writeAndFlush(request);
         }
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        targetChannel = client.getChannel(ctx.channel().eventLoop());
+//        targetChannel = client.getChannel(ctx.channel().eventLoop());
     }
 
     private Map<String, String> parse(FullHttpRequest fullReq) throws IOException {

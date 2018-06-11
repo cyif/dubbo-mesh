@@ -1,7 +1,7 @@
 package com.alibaba.dubbo.performance.demo.agent.rpc;
 
 import com.alibaba.dubbo.performance.demo.agent.proto.Agent;
-import com.alibaba.dubbo.performance.demo.agent.rpc.model.AgentRequestHolder;
+import com.alibaba.dubbo.performance.demo.agent.server.ConsumerAgentServerHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
@@ -22,7 +22,7 @@ public class ConsumerRpcHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Agent.AgentResponse response = (Agent.AgentResponse) msg;
-        Promise<Agent.AgentResponse> promise = AgentRequestHolder.remove(response.getId());
+        Promise<Agent.AgentResponse> promise = ConsumerAgentServerHandler.processingRpc.get().remove(response.getId());
         if (null == promise) {
             logger.error("Fail to get promise : " + response.getId());
         } else {
