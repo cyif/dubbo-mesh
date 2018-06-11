@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static javax.swing.UIManager.put;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,7 +39,12 @@ public class ConsumerRpcClient{
 
     private LoadBalance loadBalance = null;
 
-    private Map<Endpoint, Channel> channelMap = new ConcurrentHashMap<>();
+    private ThreadLocal<Map<Endpoint, Channel>> channelMap = new ThreadLocal<Map<Endpoint, Channel>>() {
+        @Override
+        protected ConcurrentHashMap<Endpoint, Channel> initialValue() {
+            return new ConcurrentHashMap<>();
+        }
+    };
 
     private final Object lock = new Object();
 
@@ -52,17 +59,12 @@ public class ConsumerRpcClient{
                 if (null == loadBalance) {
                     List<Endpoint> endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
                     loadBalance = new RoundRobinLoadBalance(endpoints);
-                    channelMap = new HashMap<>();
-//                    for (Endpoint endpoint : endpoints) {
-//                        Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).sync().channel();
-//                        channelMap.put(endpoint, channel);
-//                    }
                 }
             }
         }
 
         Endpoint endpoint = loadBalance.select();
-        if (!channelMap.containsKey(endpoint)) {
+        if (!channelMap.get().containsKey(endpoint)) {
             Bootstrap bootstrap = new Bootstrap()
                     .group(eventLoop)
                     .option(ChannelOption.SO_KEEPALIVE, true)
@@ -83,8 +85,8 @@ public class ConsumerRpcClient{
                         }
                     });
             Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).channel();
-            channelMap.put(endpoint, channel);
+            channelMap.get().put(endpoint, channel);
         }
-        return channelMap.get(endpoint);
+        return channelMap.get().get(endpoint);
     }
 }
