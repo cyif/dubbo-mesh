@@ -1,17 +1,10 @@
 package com.alibaba.dubbo.performance.demo.agent.rpc;
 
 import com.alibaba.dubbo.performance.demo.agent.proto.Agent;
-import com.alibaba.dubbo.performance.demo.agent.server.ConsumerAgentServer;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
+import com.alibaba.dubbo.performance.demo.agent.rpc.model.AgentRequestHolder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,17 +22,11 @@ public class ConsumerRpcHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Agent.AgentResponse response = (Agent.AgentResponse) msg;
-        long channelId = response.getId() >> 30;
-        Channel channel = ConsumerAgentServer.channelMap.get(channelId);
-        if (channel == null) {
-            throw new Exception("request channel is null");
+        Promise<Agent.AgentResponse> promise = AgentRequestHolder.remove(response.getId());
+        if (null == promise) {
+            logger.error("Fail to get promise : " + response.getId());
+        } else {
+            promise.trySuccess(response);
         }
-
-        FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK,
-                Unpooled.wrappedBuffer(response.getValue().getBytes()));
-        resp.headers().set(HttpHeaderNames.CONTENT_LENGTH, resp.content().readableBytes());
-        resp.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        channel.writeAndFlush(resp);
     }
 }

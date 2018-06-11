@@ -2,14 +2,25 @@ package com.alibaba.dubbo.performance.demo.agent.server;
 
 import com.alibaba.dubbo.performance.demo.agent.proto.Agent;
 import com.alibaba.dubbo.performance.demo.agent.rpc.ConsumerRpcClient;
+import com.alibaba.dubbo.performance.demo.agent.rpc.model.AgentPromise;
+import com.alibaba.dubbo.performance.demo.agent.rpc.model.AgentRequestHolder;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import io.netty.util.collection.LongObjectHashMap;
+import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,21 +55,7 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
         if (msg instanceof FullHttpRequest) {
             Map<String, String> pMap = parse((FullHttpRequest) msg);
 
-//            RpcInvocation invocation = new RpcInvocation();
-//            invocation.setMethodName(pMap.get("method"));
-//            invocation.setAttachment("path", pMap.get("interface"));
-//            invocation.setParameterTypes(pMap.get("parameterTypesString"));
-//
-//            ByteArrayOutputStream out = new ByteArrayOutputStream();
-//            PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
-//            JsonUtils.writeObject(pMap.getOrDefault("parameter", ""), writer);
-//            invocation.setArguments(out.toByteArray());
-
-            long id = (channelId << 30) + IdGenerator.getInstance().getRequestId();
-//            Request request = new Request(id);
-//            request.setVersion("2.0.0");
-//            request.setTwoWay(true);
-//            request.setData(invocation);
+            long id = IdGenerator.getInstance().getRequestId();
 
             Agent.AgentRequest request = Agent.AgentRequest.newBuilder()
                     .setId(id)
@@ -66,14 +63,16 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
                     .setInterfaceName(pMap.get("interface"))
                     .setParameterTypesString(pMap.get("parameterTypesString"))
                     .setParameter(pMap.get("parameter")).build();
+
+            AgentRequestHolder.put(request.getId(), new AgentPromise(ctx));
             targetChannel.writeAndFlush(request);
         }
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        channelId = IdGenerator.getInstance().getChannelId();
-        ConsumerAgentServer.channelMap.put(channelId, ctx.channel());
+//        channelId = IdGenerator.getInstance().getChannelId();
+//        ConsumerAgentServer.channelMap.put(channelId, ctx.channel());
         targetChannel = client.getChannel();
     }
 
