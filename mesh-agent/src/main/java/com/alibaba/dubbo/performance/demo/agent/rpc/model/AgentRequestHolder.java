@@ -7,23 +7,17 @@ import io.netty.util.concurrent.Promise;
 
 public class AgentRequestHolder {
 
-    private static FastThreadLocal<LongObjectHashMap<Promise<Agent.AgentResponse>>> processingRpc =
-            new FastThreadLocal<LongObjectHashMap<Promise<Agent.AgentResponse>>>() {
-                @Override
-                protected LongObjectHashMap<Promise<Agent.AgentResponse>> initialValue() throws Exception {
-                    return new LongObjectHashMap<>();
-                }
-            };
+    private static LongObjectHashMap<Promise<Agent.AgentResponse>> processingRpc = new LongObjectHashMap<>();
 
     public static void put(long requestId, Promise<Agent.AgentResponse> promise){
-        processingRpc.get().put(requestId, promise);
+        processingRpc.put(requestId, promise);
     }
 
     public static Promise<Agent.AgentResponse> get(long requestId){
-        return processingRpc.get().get(requestId);
+        return processingRpc.get(requestId);
     }
 
     public static Promise<Agent.AgentResponse> remove(long requestId){
-        return processingRpc.get().remove(requestId);
+        return processingRpc.remove(requestId);
     }
 }
