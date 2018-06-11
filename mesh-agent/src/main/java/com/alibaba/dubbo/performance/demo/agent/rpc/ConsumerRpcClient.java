@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.alibaba.dubbo.performance.demo.agent.server.ConsumerAgentServer.channelMap;
 import static com.sun.jmx.remote.internal.IIOPHelper.connect;
 
 
@@ -35,10 +36,6 @@ import static com.sun.jmx.remote.internal.IIOPHelper.connect;
  */
 public class ConsumerRpcClient{
 
-    private Map<Endpoint, Channel> channelMap;
-
-    private Bootstrap bootstrap;
-
     private IRegistry registry;
 
     private LoadBalance loadBalance = null;
@@ -47,26 +44,6 @@ public class ConsumerRpcClient{
 
     public ConsumerRpcClient(IRegistry registry) {
         this.registry = registry;
-        this.bootstrap = new Bootstrap()
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .channel(EpollSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(
-//                                new DubboRpcEncoder(),
-//                                new DubboRpcDecoder(),
-                                // decoded
-                                new ProtobufVarint32FrameDecoder(),
-                                new ProtobufDecoder(Agent.AgentResponse.getDefaultInstance()),
-                                // encoded
-                                new ProtobufVarint32LengthFieldPrepender(),
-                                new ProtobufEncoder(),
-                                new ConsumerRpcHandler());
-                    }
-                });
     }
 
     public Channel getChannel(EventLoop eventLoop) throws Exception {
@@ -85,8 +62,26 @@ public class ConsumerRpcClient{
         }
 
         Endpoint endpoint = loadBalance.select();
-        return bootstrap.group(eventLoop).connect(endpoint.getHost(), endpoint.getPort()).channel();
-//        Channel channel = channelMap.get(loadBalance.select());
-//        return channel;
+
+        Bootstrap bootstrap = new Bootstrap()
+                .group(eventLoop)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .channel(EpollSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(
+                                // decoded
+                                new ProtobufVarint32FrameDecoder(),
+                                new ProtobufDecoder(Agent.AgentResponse.getDefaultInstance()),
+                                // encoded
+                                new ProtobufVarint32LengthFieldPrepender(),
+                                new ProtobufEncoder(),
+                                new ConsumerRpcHandler());
+                    }
+                });
+        return bootstrap.connect(endpoint.getHost(), endpoint.getPort()).channel();
     }
 }

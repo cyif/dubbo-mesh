@@ -73,7 +73,7 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 //        channelId = IdGenerator.getInstance().getChannelId();
 //        ConsumerAgentServer.channelMap.put(channelId, ctx.channel());
-        targetChannel = client.getChannel(ctx.channel().eventLoop());
+        targetChannel = client.getChannel();
     }
 
     private Map<String, String> parse(FullHttpRequest fullReq) throws IOException {
