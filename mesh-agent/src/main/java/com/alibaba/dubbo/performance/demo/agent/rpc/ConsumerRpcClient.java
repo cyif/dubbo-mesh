@@ -18,6 +18,8 @@ import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 import io.netty.util.concurrent.FastThreadLocal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,14 +39,18 @@ import static javax.swing.UIManager.put;
 public class ConsumerRpcClient{
 
     private IRegistry registry;
+    private Logger logger = LoggerFactory.getLogger(ConsumerRpcHandler.class);
+
 
     private LoadBalance loadBalance = null;
 
     private FastThreadLocal<Map<Endpoint, Channel>> channelMap = new FastThreadLocal<Map<Endpoint, Channel>>() {
         @Override
         protected HashMap<Endpoint, Channel> initialValue() {
+            logger.info("Client ThreadLocal !!!");
             return new HashMap<>();
         }
+
     };
 
     private final Object lock = new Object();
