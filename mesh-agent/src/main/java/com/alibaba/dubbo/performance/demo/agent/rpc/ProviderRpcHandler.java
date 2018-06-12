@@ -2,8 +2,8 @@ package com.alibaba.dubbo.performance.demo.agent.rpc;
 
 import com.alibaba.dubbo.performance.demo.agent.proto.Agent;
 import com.alibaba.dubbo.performance.demo.agent.rpc.model.RpcResponse;
+import com.alibaba.dubbo.performance.demo.agent.server.ProviderAgentServer;
 import com.google.protobuf.ByteString;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
@@ -24,12 +24,6 @@ public class ProviderRpcHandler extends ChannelInboundHandlerAdapter {
 
     private Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
 
-    private Channel sourceChannel;
-
-    public ProviderRpcHandler(Channel sourceChannel) {
-        this.sourceChannel = sourceChannel;
-    }
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         RpcResponse response = (RpcResponse) msg;
@@ -39,9 +33,8 @@ public class ProviderRpcHandler extends ChannelInboundHandlerAdapter {
                 .setValueBytes(ByteString.copyFrom(response.getBytes()))
                 .build();
 
-
         if (isLegal(agentResponse.getValue())) {
-            sourceChannel.writeAndFlush(agentResponse);
+            ProviderAgentServer.channel.writeAndFlush(agentResponse);
         }
     }
 

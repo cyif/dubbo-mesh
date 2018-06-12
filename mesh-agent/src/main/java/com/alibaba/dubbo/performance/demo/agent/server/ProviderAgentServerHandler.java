@@ -1,18 +1,13 @@
 package com.alibaba.dubbo.performance.demo.agent.server;
 
 import com.alibaba.dubbo.performance.demo.agent.proto.Agent;
-import com.alibaba.dubbo.performance.demo.agent.rpc.DubboRpcDecoder;
-import com.alibaba.dubbo.performance.demo.agent.rpc.DubboRpcEncoder;
 import com.alibaba.dubbo.performance.demo.agent.rpc.ProviderRpcClient;
-import com.alibaba.dubbo.performance.demo.agent.rpc.ProviderRpcHandler;
 import com.alibaba.dubbo.performance.demo.agent.rpc.model.JsonUtils;
 import com.alibaba.dubbo.performance.demo.agent.rpc.model.Request;
 import com.alibaba.dubbo.performance.demo.agent.rpc.model.RpcInvocation;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,16 +57,7 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        client.setHandler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(
-                        new DubboRpcDecoder(),
-                        new DubboRpcEncoder(),
-                        new ProviderRpcHandler(ctx.channel())
-                );
-            }
-        });
-        targetChannel = client.connect();
+        ProviderAgentServer.channel = ctx.channel();
+        targetChannel = client.getChannel(ctx.channel().eventLoop());
     }
 }

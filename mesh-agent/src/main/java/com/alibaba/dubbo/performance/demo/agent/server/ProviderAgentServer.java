@@ -7,6 +7,7 @@ import com.alibaba.dubbo.performance.demo.agent.rpc.ProviderRpcClient;
 import com.alibaba.dubbo.performance.demo.agent.server.api.AgentServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -28,6 +29,10 @@ import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
  */
 public class ProviderAgentServer implements AgentServer {
 
+    public static EventLoopGroup worker = new EpollEventLoopGroup(1);
+
+    public static Channel channel;
+
     private ServerBootstrap bootstrap;
     private IRegistry registry;
     private int port;
@@ -41,7 +46,6 @@ public class ProviderAgentServer implements AgentServer {
         bootstrap = new ServerBootstrap();
         registry = new EtcdRegistry(AgentConstant.ETCD_URL);
         EventLoopGroup boss = new EpollEventLoopGroup(1);
-        EventLoopGroup worker = new EpollEventLoopGroup(1);
         ProviderRpcClient client = new ProviderRpcClient();
 
         bootstrap.group(boss, worker)
