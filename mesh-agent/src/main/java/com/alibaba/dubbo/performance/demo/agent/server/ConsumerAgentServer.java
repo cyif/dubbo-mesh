@@ -6,7 +6,6 @@ import com.alibaba.dubbo.performance.demo.agent.rpc.ConsumerRpcClient;
 import com.alibaba.dubbo.performance.demo.agent.server.api.AgentServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -16,10 +15,6 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.util.collection.LongObjectHashMap;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -29,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Time: 下午2:46
  */
 public class ConsumerAgentServer implements AgentServer {
+
+    public static EventLoopGroup worker = new EpollEventLoopGroup(8);
 
     private ServerBootstrap bootstrap;
 
@@ -45,7 +42,6 @@ public class ConsumerAgentServer implements AgentServer {
         registry = new EtcdRegistry(AgentConstant.ETCD_URL);
         bootstrap = new ServerBootstrap();
         EventLoopGroup boss = new EpollEventLoopGroup(1);
-        EventLoopGroup worker = new EpollEventLoopGroup();
         ConsumerRpcClient client = new ConsumerRpcClient(registry);
 
         bootstrap.group(boss, worker)

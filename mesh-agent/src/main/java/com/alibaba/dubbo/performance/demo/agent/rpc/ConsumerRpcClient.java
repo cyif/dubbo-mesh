@@ -5,6 +5,7 @@ import com.alibaba.dubbo.performance.demo.agent.registry.Endpoint;
 import com.alibaba.dubbo.performance.demo.agent.registry.IRegistry;
 import com.alibaba.dubbo.performance.demo.agent.rpc.loadbalance.LoadBalance;
 import com.alibaba.dubbo.performance.demo.agent.rpc.loadbalance.RoundRobinLoadBalance;
+import com.alibaba.dubbo.performance.demo.agent.server.ConsumerAgentServer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -39,19 +40,13 @@ import static javax.swing.UIManager.put;
 public class ConsumerRpcClient{
 
     private IRegistry registry;
+
     private Logger logger = LoggerFactory.getLogger(ConsumerRpcHandler.class);
 
 
     private LoadBalance loadBalance = null;
 
-    private FastThreadLocal<Map<Endpoint, Channel>> channelMap = new FastThreadLocal<Map<Endpoint, Channel>>() {
-        @Override
-        protected HashMap<Endpoint, Channel> initialValue() {
-            logger.info("Client ThreadLocal !!!");
-            return new HashMap<>();
-        }
-
-    };
+    private Map<EventLoop, Channel> channelMap = new HashMap<>();
 
     private final Object lock = new Object();
 
@@ -60,37 +55,46 @@ public class ConsumerRpcClient{
         try {
             List<Endpoint> endpoints = registry.find("com.alibaba.dubbo.performance.demo.provider.IHelloService");
             loadBalance = new RoundRobinLoadBalance(endpoints);
+            init();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public Channel getChannel(EventLoop eventLoop) throws Exception {
+    private void init() {
+        ConsumerAgentServer.worker.forEach(
+                eventExecutor -> {
+                    Bootstrap bootstrap = createBootstrap((EventLoop) eventExecutor, loadBalance.select());
+                    Channel channel = bootstrap.connect().channel();
+                    channelMap.put((EventLoop) eventExecutor, channel);
+                }
+        );
+    }
 
-        Endpoint endpoint = loadBalance.select();
-        if (!channelMap.get().containsKey(endpoint)) {
-            Bootstrap bootstrap = new Bootstrap()
-                    .group(eventLoop)
-                    .option(ChannelOption.SO_KEEPALIVE, true)
-                    .option(ChannelOption.TCP_NODELAY, true)
-                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                    .channel(EpollSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(
-                                    // decoded
-                                    new ProtobufVarint32FrameDecoder(),
-                                    new ProtobufDecoder(Agent.AgentResponse.getDefaultInstance()),
-                                    // encoded
-                                    new ProtobufVarint32LengthFieldPrepender(),
-                                    new ProtobufEncoder(),
-                                    new ConsumerRpcHandler());
-                        }
-                    });
-            Channel channel = bootstrap.connect(endpoint.getHost(), endpoint.getPort()).channel();
-            channelMap.get().put(endpoint, channel);
-        }
-        return channelMap.get().get(endpoint);
+    private Bootstrap createBootstrap(EventLoop eventLoop, Endpoint endpoint) {
+        return new Bootstrap()
+                .group(eventLoop)
+                .remoteAddress(endpoint.getHost(), endpoint.getPort())
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .channel(EpollSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(
+                                // decoded
+                                new ProtobufVarint32FrameDecoder(),
+                                new ProtobufDecoder(Agent.AgentResponse.getDefaultInstance()),
+                                // encoded
+                                new ProtobufVarint32LengthFieldPrepender(),
+                                new ProtobufEncoder(),
+                                new ConsumerRpcHandler());
+                    }
+                });
+    }
+
+    public Channel getChannel(EventLoop eventLoop) throws Exception {
+        return channelMap.get(eventLoop);
     }
 }
