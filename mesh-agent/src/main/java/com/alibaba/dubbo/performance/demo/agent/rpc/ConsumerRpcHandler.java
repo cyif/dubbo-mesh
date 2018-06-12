@@ -1,7 +1,6 @@
 package com.alibaba.dubbo.performance.demo.agent.rpc;
 
 import com.alibaba.dubbo.performance.demo.agent.proto.Agent;
-import com.alibaba.dubbo.performance.demo.agent.rpc.model.AgentRequestHolder;
 import com.alibaba.dubbo.performance.demo.agent.server.ConsumerAgentServer;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -13,7 +12,6 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,6 @@ public class ConsumerRpcHandler extends ChannelInboundHandlerAdapter {
         Agent.AgentResponse response = (Agent.AgentResponse) msg;
         int sourceChannelId = (int) (response.getId() >> 30);
         Channel sourceChannel = ConsumerAgentServer.channels.get(sourceChannelId);
-//        Promise<Agent.AgentResponse> promise = AgentRequestHolder.remove(response.getId());
         if (null == sourceChannel) {
             logger.error("Fail to get channel : " + response.getId());
         } else {
