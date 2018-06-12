@@ -50,7 +50,7 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
         JsonUtils.writeObject(agentRequest.getParameter(), writer);
         invocation.setArguments(out.toByteArray());
 
-        Request request = new Request(agentRequest.getId() << 1 + channelId);
+        Request request = new Request(agentRequest.getId() * 10 + channelId);
         request.setVersion("2.0.0");
         request.setTwoWay(true);
         request.setData(invocation);

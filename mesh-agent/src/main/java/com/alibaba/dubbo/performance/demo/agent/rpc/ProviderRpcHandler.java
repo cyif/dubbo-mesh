@@ -31,7 +31,7 @@ public class ProviderRpcHandler extends ChannelInboundHandlerAdapter {
 
         int channelId = (int) (response.getRequestId() % 10);
         Agent.AgentResponse agentResponse = Agent.AgentResponse.newBuilder()
-                .setId(response.getRequestId() >> 1)
+                .setId(response.getRequestId() / 10)
                 .setValueBytes(ByteString.copyFrom(response.getBytes()))
                 .build();
 
