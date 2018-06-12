@@ -30,7 +30,7 @@ import io.netty.util.collection.IntObjectHashMap;
  */
 public class ProviderAgentServer implements AgentServer {
 
-    public static EventLoopGroup worker = new EpollEventLoopGroup(1);
+    public static EventLoopGroup worker = new EpollEventLoopGroup(4);
 
     public static IntObjectHashMap<Channel> channels = new IntObjectHashMap<>();
 
