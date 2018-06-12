@@ -30,7 +30,7 @@ import io.netty.util.collection.IntObjectHashMap;
  */
 public class ProviderAgentServer implements AgentServer {
 
-    public static EventLoopGroup worker = new EpollEventLoopGroup(4);
+    public static EventLoopGroup worker = new EpollEventLoopGroup(1);
 
     public static IntObjectHashMap<Channel> channels = new IntObjectHashMap<>();
 
@@ -49,7 +49,7 @@ public class ProviderAgentServer implements AgentServer {
         EventLoopGroup boss = new EpollEventLoopGroup(1);
         ProviderRpcClient client = new ProviderRpcClient();
 
-        bootstrap.group(boss, worker)
+        bootstrap.group(worker)
                 .channel(EpollServerSocketChannel.class)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true)

@@ -61,7 +61,6 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         channelId = IdGenerator.getInstance().getChannelId();
-        logger.info("Provider server channel active : " + channelId);
         ProviderAgentServer.channels.put(channelId, ctx.channel());
         targetChannel = client.getChannel(ctx.channel().eventLoop());
     }

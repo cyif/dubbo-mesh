@@ -22,7 +22,7 @@ elif [[ "$1" == "provider-small" ]]; then
        -Xms512M \
        -Xmx512M \
        -Dtype=provider \
-       -Dweight=1 \
+       -Dweight=2 \
        -Ddubbo.protocol.port=20880 \
        -Dserver.port=30000 \
        -Detcd.url=$ETCD_URL \
@@ -46,7 +46,7 @@ elif [[ "$1" == "provider-large" ]]; then
        -Xms2560M \
        -Xmx2560M \
        -Dtype=provider \
-       -Dweight=5 \
+       -Dweight=3 \
        -Ddubbo.protocol.port=20880 \
        -Dserver.port=30000 \
        -Detcd.url=$ETCD_URL \
