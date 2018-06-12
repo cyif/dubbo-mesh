@@ -30,7 +30,7 @@ public class ProviderRpcClient {
 
     private Endpoint endpoint;
 
-    private Map<EventLoop, Channel> channelMap = new HashMap<>();
+    public static Map<EventLoop, Channel> channelMap = new HashMap<>();
 
     public ProviderRpcClient() {
         this.endpoint = new Endpoint("127.0.0.1", AgentConstant.DUBBO_PORT, 0);

@@ -44,7 +44,7 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
         if (msg instanceof FullHttpRequest) {
             Map<String, String> pMap = parse((FullHttpRequest) msg);
 
-            long id = IdGenerator.getInstance().getRequestId() + (long) channelId << 30;
+            long id = IdGenerator.getInstance().getRequestId() + ((long) channelId << 20);
 
             Agent.AgentRequest request = Agent.AgentRequest.newBuilder()
                     .setId(id)

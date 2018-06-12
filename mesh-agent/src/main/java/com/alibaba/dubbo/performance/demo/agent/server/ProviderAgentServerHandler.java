@@ -54,7 +54,7 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
         request.setVersion("2.0.0");
         request.setTwoWay(true);
         request.setData(invocation);
-        logger.info("Provider send request : " + channelId);
+//        logger.info("Provider send request : " + channelId);
         targetChannel.writeAndFlush(request);
     }
 

@@ -36,11 +36,11 @@ public class ProviderRpcHandler extends ChannelInboundHandlerAdapter {
                 .build();
 
         if (isLegal(agentResponse.getValue())) {
-            logger.info("Provider Response : " + channelId);
+//            logger.info("Provider Response : " + channelId);
             Channel sourceChannel = ProviderAgentServer.channels.get(channelId);
             sourceChannel.writeAndFlush(agentResponse);
         } else {
-            logger.info(agentResponse.getValue());
+            logger.info("Not legal : " + agentResponse.getValue());
         }
     }
 

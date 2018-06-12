@@ -29,10 +29,10 @@ public class ConsumerRpcHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Agent.AgentResponse response = (Agent.AgentResponse) msg;
-        int sourceChannelId = (int) (response.getId() >> 30);
+        int sourceChannelId = (int) (response.getId() >> 20);
         Channel sourceChannel = ConsumerAgentServer.channels.get(sourceChannelId);
         if (null == sourceChannel) {
-            logger.error("Fail to get channel : " + response.getId());
+            logger.error("Fail to get channel : " + sourceChannelId);
         } else {
             FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                     HttpResponseStatus.OK,
