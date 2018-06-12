@@ -73,7 +73,13 @@ public class ProviderRpcClient {
     }
 
     public Channel getChannel(EventLoop eventLoop) {
-        return channelMap.get(eventLoop);
+        Channel channel = channelMap.get(eventLoop);
+        if (channel == null) {
+            logger.info("Channel is null!");
+            Bootstrap bootstrap = createBootstrap(eventLoop);
+            channel = bootstrap.connect().channel();
+        }
+        return channel;
     }
 
 }
