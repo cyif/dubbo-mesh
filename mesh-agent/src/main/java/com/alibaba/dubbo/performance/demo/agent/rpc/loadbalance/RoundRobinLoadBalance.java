@@ -38,7 +38,7 @@ public class RoundRobinLoadBalance implements LoadBalance {
     @Override
     public Endpoint select() {
 
-        int order = count.incrementAndGet() % totalWeight;
+        int order = count.getAndIncrement() % totalWeight;
 
         return index.get(order);
     }

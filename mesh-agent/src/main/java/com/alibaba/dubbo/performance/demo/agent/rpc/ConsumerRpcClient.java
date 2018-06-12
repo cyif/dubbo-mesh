@@ -65,8 +65,12 @@ public class ConsumerRpcClient{
         ConsumerAgentServer.worker.forEach(
                 eventExecutor -> {
                     Bootstrap bootstrap = createBootstrap((EventLoop) eventExecutor, loadBalance.select());
-                    Channel channel = bootstrap.connect().channel();
-                    channelMap.put((EventLoop) eventExecutor, channel);
+                    try {
+                        Channel channel = bootstrap.connect().sync().channel();
+                        channelMap.put((EventLoop) eventExecutor, channel);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
         );
     }

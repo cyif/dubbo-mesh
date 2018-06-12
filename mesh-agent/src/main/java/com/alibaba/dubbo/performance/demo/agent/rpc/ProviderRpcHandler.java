@@ -39,7 +39,15 @@ public class ProviderRpcHandler extends ChannelInboundHandlerAdapter {
             logger.info("Provider Response : " + channelId);
             Channel sourceChannel = ProviderAgentServer.channels.get(channelId);
             sourceChannel.writeAndFlush(agentResponse);
+        } else {
+            logger.info(agentResponse.getValue());
         }
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        logger.info("PRPC active!");
     }
 
     private boolean isLegal(String str) {
