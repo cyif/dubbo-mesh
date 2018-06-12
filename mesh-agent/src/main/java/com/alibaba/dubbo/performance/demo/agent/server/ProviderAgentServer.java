@@ -19,6 +19,7 @@ import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
+import io.netty.util.collection.IntObjectHashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,7 +32,7 @@ public class ProviderAgentServer implements AgentServer {
 
     public static EventLoopGroup worker = new EpollEventLoopGroup(1);
 
-    public static Channel channel;
+    public static IntObjectHashMap<Channel> channels = new IntObjectHashMap<>();
 
     private ServerBootstrap bootstrap;
     private IRegistry registry;

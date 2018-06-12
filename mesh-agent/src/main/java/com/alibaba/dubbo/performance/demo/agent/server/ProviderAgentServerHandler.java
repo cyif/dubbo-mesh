@@ -30,6 +30,8 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
 
     private Channel targetChannel;
 
+    private int channelId;
+
     public ProviderAgentServerHandler(ProviderRpcClient client) {
         this.client = client;
     }
@@ -48,7 +50,7 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
         JsonUtils.writeObject(agentRequest.getParameter(), writer);
         invocation.setArguments(out.toByteArray());
 
-        Request request = new Request(agentRequest.getId());
+        Request request = new Request(agentRequest.getId() << 1 + channelId);
         request.setVersion("2.0.0");
         request.setTwoWay(true);
         request.setData(invocation);
@@ -57,8 +59,8 @@ public class ProviderAgentServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("Provider channel active");
-        ProviderAgentServer.channel = ctx.channel();
+        channelId = IdGenerator.getInstance().getChannelId();
+        ProviderAgentServer.channels.put(channelId, ctx.channel());
         targetChannel = client.getChannel(ctx.channel().eventLoop());
     }
 }
