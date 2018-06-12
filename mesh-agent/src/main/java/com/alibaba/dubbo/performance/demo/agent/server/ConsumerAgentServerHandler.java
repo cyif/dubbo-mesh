@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,6 +43,8 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
 
     private ConsumerRpcClient client;
 
+    private int channelId;
+
     private Channel targetChannel;
 
     public ConsumerAgentServerHandler(ConsumerRpcClient client) {
@@ -53,7 +56,7 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
         if (msg instanceof FullHttpRequest) {
             Map<String, String> pMap = parse((FullHttpRequest) msg);
 
-            long id = IdGenerator.getInstance().getRequestId();
+            long id = channelId << 30 + IdGenerator.getInstance().getRequestId();
 
             Agent.AgentRequest request = Agent.AgentRequest.newBuilder()
                     .setId(id)
@@ -62,13 +65,15 @@ public class ConsumerAgentServerHandler extends ChannelInboundHandlerAdapter{
                     .setParameterTypesString(pMap.get("parameterTypesString"))
                     .setParameter(pMap.get("parameter")).build();
 
-            AgentRequestHolder.put(request.getId(), new AgentPromise(ctx));
+//            AgentRequestHolder.put(request.getId(), new AgentPromise(ctx));
             targetChannel.writeAndFlush(request);
         }
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        channelId = IdGenerator.getInstance().getChannelId();
+        ConsumerAgentServer.channels.put(channelId, ctx.channel());
         targetChannel = client.getChannel(ctx.channel().eventLoop());
     }
 

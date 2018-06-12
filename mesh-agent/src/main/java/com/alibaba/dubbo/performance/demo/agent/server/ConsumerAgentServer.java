@@ -6,6 +6,7 @@ import com.alibaba.dubbo.performance.demo.agent.rpc.ConsumerRpcClient;
 import com.alibaba.dubbo.performance.demo.agent.server.api.AgentServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -15,6 +16,8 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.util.collection.IntObjectHashMap;
+import io.netty.util.collection.LongObjectHashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,6 +29,8 @@ import io.netty.handler.codec.http.HttpServerCodec;
 public class ConsumerAgentServer implements AgentServer {
 
     public static EventLoopGroup worker = new EpollEventLoopGroup(8);
+
+    public static IntObjectHashMap<Channel> channels = new IntObjectHashMap<>();
 
     private ServerBootstrap bootstrap;
 

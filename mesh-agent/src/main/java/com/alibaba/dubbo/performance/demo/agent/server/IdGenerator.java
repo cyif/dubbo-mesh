@@ -1,5 +1,6 @@
 package com.alibaba.dubbo.performance.demo.agent.server;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -10,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Time: 下午5:25
  */
 public class IdGenerator {
-    private AtomicLong channelId;
+    private AtomicInteger channelId;
     private AtomicLong requestId;
 
 
@@ -20,7 +21,7 @@ public class IdGenerator {
         return instance;
     }
 
-    public long getChannelId() {
+    public int getChannelId() {
         return channelId.incrementAndGet();
     }
 
@@ -29,7 +30,7 @@ public class IdGenerator {
     }
 
     private IdGenerator() {
-        channelId = new AtomicLong();
+        channelId = new AtomicInteger();
         requestId = new AtomicLong();
     }
 }
