@@ -42,18 +42,20 @@ public class ProviderRpcClient {
     }
 
     private void init() {
-        ProviderAgentServer.worker.forEach(eventExecutor -> {
-            Bootstrap bootstrap = createBootstrap((EventLoop) eventExecutor);
-            Channel channel = bootstrap.connect().channel();
-            channelMap.put((EventLoop) eventExecutor, channel);
-        });
+        ProviderAgentServer.worker.forEach(
+                eventExecutor -> {
+                    Bootstrap bootstrap = createBootstrap((EventLoop) eventExecutor);
+                    Channel channel = bootstrap.connect().channel();
+                    channelMap.put((EventLoop) eventExecutor, channel);
+                }
+        );
     }
 
     private Bootstrap createBootstrap(EventLoop eventLoop) {
         return new Bootstrap()
                 .group(eventLoop)
                 .remoteAddress(endpoint.getHost(), endpoint.getPort())
-                .option(ChannelOption.SO_KEEPALIVE, false)
+                .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .channel(EpollSocketChannel.class)
