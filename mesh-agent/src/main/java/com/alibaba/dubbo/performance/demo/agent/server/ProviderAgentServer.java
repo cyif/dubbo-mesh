@@ -49,7 +49,7 @@ public class ProviderAgentServer implements AgentServer {
         EventLoopGroup boss = new EpollEventLoopGroup(1);
         ProviderRpcClient client = new ProviderRpcClient();
 
-        bootstrap.group(worker)
+        bootstrap.group(boss, worker)
                 .channel(EpollServerSocketChannel.class)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true)
@@ -81,9 +81,5 @@ public class ProviderAgentServer implements AgentServer {
             bootstrap.config().group().shutdownGracefully();
             bootstrap.config().childGroup().shutdownGracefully();
         }
-    }
-
-    public static ProviderAgentServer createServer(int port) {
-        return new ProviderAgentServer(port);
     }
 }
