@@ -28,8 +28,6 @@ public class ProviderRpcClient {
 
     private Logger logger = LoggerFactory.getLogger(ProviderRpcClient.class);
 
-    private Bootstrap bootstrap;
-
     private Endpoint endpoint;
 
     private Map<EventLoop, Channel> channelMap = new HashMap<>();
@@ -45,6 +43,7 @@ public class ProviderRpcClient {
                     Bootstrap bootstrap = createBootstrap((EventLoop) eventExecutor);
                     try {
                         Channel channel = bootstrap.connect().sync().channel();
+                        logger.info("Connection!!!");
                         channelMap.put((EventLoop) eventExecutor, channel);
                     } catch (Exception e) {
                         e.printStackTrace();
